@@ -1,0 +1,11 @@
+Metadata-Version: 2.1
+Name: AdelaiDet
+Version: 0.2.0
+Summary: AdelaiDet is AIM's research platform for instance-level detection tasks based on Detectron2.
+Home-page: https://github.com/stanstarks/AdelaiDet
+Author: Adelaide Intelligent Machines
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
+Requires-Python: >=3.6
+Provides-Extra: all

@@ -1,0 +1,13 @@
+# ninja log v5
+1	465	1654932029246288716	/home/liruihuang/AdelaiDet/build/temp.linux-x86_64-3.7/home/liruihuang/AdelaiDet/adet/layers/csrc/cuda_version.o	c48017c0b87cc6c7
+1	8665	1654932037438218103	/home/liruihuang/AdelaiDet/build/temp.linux-x86_64-3.7/home/liruihuang/AdelaiDet/adet/layers/csrc/ml_nms/ml_nms.o	d99efe5cf6e27d26
+1	9055	1654932037830214725	/home/liruihuang/AdelaiDet/build/temp.linux-x86_64-3.7/home/liruihuang/AdelaiDet/adet/layers/csrc/BezierAlign/BezierAlign_cuda.o	7cd291069cd615b4
+0	9095	1654932037878214312	/home/liruihuang/AdelaiDet/build/temp.linux-x86_64-3.7/home/liruihuang/AdelaiDet/adet/layers/csrc/BezierAlign/BezierAlign_cpu.o	6a624a2f5a5d5a68
+1	9278	1654932038054212795	/home/liruihuang/AdelaiDet/build/temp.linux-x86_64-3.7/home/liruihuang/AdelaiDet/adet/layers/csrc/DefROIAlign/DefROIAlign_cuda.o	7d75b4372341200c
+0	17459	1654932046238142277	/home/liruihuang/AdelaiDet/build/temp.linux-x86_64-3.7/home/liruihuang/AdelaiDet/adet/layers/csrc/vision.o	75a832847d161d56
+3	502	1654932047486131525	/home/liruihuang/AdelaiDet/build/temp.linux-x86_64-3.7/home/liruihuang/AdelaiDet/adet/layers/csrc/cuda_version.o	9c76c3f6a4e3e70c
+3	8204	1654932055190065168	/home/liruihuang/AdelaiDet/build/temp.linux-x86_64-3.7/home/liruihuang/AdelaiDet/adet/layers/csrc/ml_nms/ml_nms.o	e8f9be277aa51383
+2	8622	1654932055610061551	/home/liruihuang/AdelaiDet/build/temp.linux-x86_64-3.7/home/liruihuang/AdelaiDet/adet/layers/csrc/BezierAlign/BezierAlign_cpu.o	a51264beba94d218
+3	9228	1654932056210056384	/home/liruihuang/AdelaiDet/build/temp.linux-x86_64-3.7/home/liruihuang/AdelaiDet/adet/layers/csrc/BezierAlign/BezierAlign_cuda.o	633f0ae452b8c77
+3	9380	1654932056358055109	/home/liruihuang/AdelaiDet/build/temp.linux-x86_64-3.7/home/liruihuang/AdelaiDet/adet/layers/csrc/DefROIAlign/DefROIAlign_cuda.o	6bbcf51e9dcf8725
+2	17215	1654932064201987571	/home/liruihuang/AdelaiDet/build/temp.linux-x86_64-3.7/home/liruihuang/AdelaiDet/adet/layers/csrc/vision.o	421ae6dc73ddf919
