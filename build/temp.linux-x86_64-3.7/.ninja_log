@@ -11,3 +11,15 @@
 3	9228	1654932056210056384	/home/liruihuang/AdelaiDet/build/temp.linux-x86_64-3.7/home/liruihuang/AdelaiDet/adet/layers/csrc/BezierAlign/BezierAlign_cuda.o	633f0ae452b8c77
 3	9380	1654932056358055109	/home/liruihuang/AdelaiDet/build/temp.linux-x86_64-3.7/home/liruihuang/AdelaiDet/adet/layers/csrc/DefROIAlign/DefROIAlign_cuda.o	6bbcf51e9dcf8725
 2	17215	1654932064201987571	/home/liruihuang/AdelaiDet/build/temp.linux-x86_64-3.7/home/liruihuang/AdelaiDet/adet/layers/csrc/vision.o	421ae6dc73ddf919
+2	736	1655276423973334629	/home/liruihuang/weakly-IS/build/temp.linux-x86_64-3.7/home/liruihuang/weakly-IS/adet/layers/csrc/cuda_version.o	d7f763f80a20971f
+0	8664	1655276431909271433	/home/liruihuang/weakly-IS/build/temp.linux-x86_64-3.7/home/liruihuang/weakly-IS/adet/layers/csrc/BezierAlign/BezierAlign_cpu.o	1c08cd15fb0d4fcd
+1	9092	1655276432325268120	/home/liruihuang/weakly-IS/build/temp.linux-x86_64-3.7/home/liruihuang/weakly-IS/adet/layers/csrc/ml_nms/ml_nms.o	97fc2f9a26ee876f
+1	9751	1655276432985262864	/home/liruihuang/weakly-IS/build/temp.linux-x86_64-3.7/home/liruihuang/weakly-IS/adet/layers/csrc/DefROIAlign/DefROIAlign_cuda.o	6ac84514df3973e6
+1	10402	1655276433633257703	/home/liruihuang/weakly-IS/build/temp.linux-x86_64-3.7/home/liruihuang/weakly-IS/adet/layers/csrc/BezierAlign/BezierAlign_cuda.o	c7ca17fc7326ffe2
+0	17367	1655276440605202185	/home/liruihuang/weakly-IS/build/temp.linux-x86_64-3.7/home/liruihuang/weakly-IS/adet/layers/csrc/vision.o	3d8705f6e103c795
+3	521	1655276441989191164	/home/liruihuang/weakly-IS/build/temp.linux-x86_64-3.7/home/liruihuang/weakly-IS/adet/layers/csrc/cuda_version.o	bb0f5fab78151d1a
+3	8861	1655276450325124785	/home/liruihuang/weakly-IS/build/temp.linux-x86_64-3.7/home/liruihuang/weakly-IS/adet/layers/csrc/ml_nms/ml_nms.o	eb5e22fb61980c2a
+3	9365	1655276450825120804	/home/liruihuang/weakly-IS/build/temp.linux-x86_64-3.7/home/liruihuang/weakly-IS/adet/layers/csrc/BezierAlign/BezierAlign_cuda.o	c7a98f68c21c78e5
+2	9470	1655276450933119944	/home/liruihuang/weakly-IS/build/temp.linux-x86_64-3.7/home/liruihuang/weakly-IS/adet/layers/csrc/DefROIAlign/DefROIAlign_cuda.o	bf58583b451886c7
+2	9821	1655276451293117077	/home/liruihuang/weakly-IS/build/temp.linux-x86_64-3.7/home/liruihuang/weakly-IS/adet/layers/csrc/BezierAlign/BezierAlign_cpu.o	bb877bc3eaafe3a8
+2	18516	1655276459985047865	/home/liruihuang/weakly-IS/build/temp.linux-x86_64-3.7/home/liruihuang/weakly-IS/adet/layers/csrc/vision.o	ad5698042df90978

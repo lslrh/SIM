@@ -1,11 +1,13 @@
-README.md
 setup.py
 /home/liruihuang/AdelaiDet/adet/layers/csrc/cuda_version.cu
 /home/liruihuang/AdelaiDet/adet/layers/csrc/vision.cpp
-/home/liruihuang/AdelaiDet/adet/layers/csrc/BezierAlign/BezierAlign_cpu.cpp
-/home/liruihuang/AdelaiDet/adet/layers/csrc/BezierAlign/BezierAlign_cuda.cu
-/home/liruihuang/AdelaiDet/adet/layers/csrc/DefROIAlign/DefROIAlign_cuda.cu
 /home/liruihuang/AdelaiDet/adet/layers/csrc/ml_nms/ml_nms.cu
+/home/liruihuang/weakly-IS/adet/layers/csrc/cuda_version.cu
+/home/liruihuang/weakly-IS/adet/layers/csrc/vision.cpp
+/home/liruihuang/weakly-IS/adet/layers/csrc/BezierAlign/BezierAlign_cpu.cpp
+/home/liruihuang/weakly-IS/adet/layers/csrc/BezierAlign/BezierAlign_cuda.cu
+/home/liruihuang/weakly-IS/adet/layers/csrc/DefROIAlign/DefROIAlign_cuda.cu
+/home/liruihuang/weakly-IS/adet/layers/csrc/ml_nms/ml_nms.cu
 AdelaiDet.egg-info/PKG-INFO
 AdelaiDet.egg-info/SOURCES.txt
 AdelaiDet.egg-info/dependency_links.txt
@@ -89,5 +91,6 @@ adet/structures/__init__.py
 adet/structures/beziers.py
 adet/utils/__init__.py
 adet/utils/comm.py
+adet/utils/contrast.py
 adet/utils/measures.py
 adet/utils/visualizer.py
