@@ -1,5 +1,5 @@
 from detectron2.layers import batched_nms
-import torch
+
 
 def ml_nms(boxlist, nms_thresh, max_proposals=-1,
            score_field="scores", label_field="labels"):
@@ -19,7 +19,7 @@ def ml_nms(boxlist, nms_thresh, max_proposals=-1,
     boxes = boxlist.pred_boxes.tensor
     scores = boxlist.scores
     labels = boxlist.pred_classes
-    keep = batched_nms(torch.from_numpy(boxes.detach().cpu().numpy()), torch.from_numpy(scores.detach().cpu().numpy()), labels, nms_thresh)
+    keep = batched_nms(boxes, scores, labels, nms_thresh)
     if max_proposals > 0:
         keep = keep[: max_proposals]
     boxlist = boxlist[keep]

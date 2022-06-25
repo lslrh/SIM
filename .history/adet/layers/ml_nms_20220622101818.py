@@ -1,5 +1,5 @@
 from detectron2.layers import batched_nms
-import torch
+
 
 def ml_nms(boxlist, nms_thresh, max_proposals=-1,
            score_field="scores", label_field="labels"):

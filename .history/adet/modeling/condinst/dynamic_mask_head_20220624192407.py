@@ -58,15 +58,14 @@ def dice_coefficient(x, target, weights=None):
     n_inst = x.size(0)
     x = x.reshape(n_inst, -1)
     target = target.reshape(n_inst, -1)
-    if weights is not None:
+    if weights:
+        pdb.set_trace()
         weights = weights.reshape(n_inst, -1)
         x = x*weights
         target = target*weights
     intersection = (x * target).sum(dim=1)
     union = (x ** 2.0).sum(dim=1) + (target ** 2.0).sum(dim=1) + eps
     loss = 1. - (2 * intersection / union)
-    if weights is not None:
-        return loss.mean()
     return loss
 
 
@@ -351,9 +350,8 @@ class DynamicMaskHead(nn.Module):
                     pseudo_seg_final = ( pseudo_seg > 0.5) * gt_bitmasks.float()
                     # show_feature_map(pseudo_seg_.detach(), 2)
                     # show_feature_map(mask_scores.detach(), 3)
-                    warmup_factor_2 = min(self._iter.item() / float(90000), 1.0)
-                    weights = ((pseudo_seg > 0.6) | (pseudo_seg < 0.4)) * gt_bitmasks
-                    loss_pseudo = (mask_focal_loss(mask_scores, pseudo_seg_final, weights) + dice_coefficient(mask_scores, pseudo_seg_final, weights)) * warmup_factor_2
+                    weights = (pseudo_seg > 0.6) | (pseudo_seg < 0.4)
+                    loss_pseudo = (mask_focal_loss(mask_scores, pseudo_seg_final, weights) + dice_coefficient(mask_scores, pseudo_seg_final, weights)) * warmup_factor
 
                     # update the prototypes
                     mask_scores = (mask_scores > 0.5) * gt_bitmasks.float()

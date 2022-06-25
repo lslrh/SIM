@@ -58,15 +58,13 @@ def dice_coefficient(x, target, weights=None):
     n_inst = x.size(0)
     x = x.reshape(n_inst, -1)
     target = target.reshape(n_inst, -1)
-    if weights is not None:
+    if weights:
         weights = weights.reshape(n_inst, -1)
-        x = x*weights
-        target = target*weights
+
+    pdb.set_trace()
     intersection = (x * target).sum(dim=1)
     union = (x ** 2.0).sum(dim=1) + (target ** 2.0).sum(dim=1) + eps
     loss = 1. - (2 * intersection / union)
-    if weights is not None:
-        return loss.mean()
     return loss
 
 
@@ -348,16 +346,15 @@ class DynamicMaskHead(nn.Module):
                     proto_masks = torch.cat([x for x in proto_masks_list])
                     proto_masks = proto_masks[gt_inds]
                     pseudo_seg = torch.amax(proto_masks, dim=1).unsqueeze(1).sigmoid()
-                    pseudo_seg_final = ( pseudo_seg > 0.5) * gt_bitmasks.float()
-                    # show_feature_map(pseudo_seg_.detach(), 2)
-                    # show_feature_map(mask_scores.detach(), 3)
-                    warmup_factor_2 = min(self._iter.item() / float(90000), 1.0)
-                    weights = ((pseudo_seg > 0.6) | (pseudo_seg < 0.4)) * gt_bitmasks
-                    loss_pseudo = (mask_focal_loss(mask_scores, pseudo_seg_final, weights) + dice_coefficient(mask_scores, pseudo_seg_final, weights)) * warmup_factor_2
+                    pseudo_seg = ( pseudo_seg > self.pseudo_thresh) * gt_bitmasks.float()
+                    # show_feature_map(pseudo_seg.detach(), 2)
+                    weights = ((mask_scores>0.6) | (mask_scores<0.4)) 
+                    loss_pseudo = (mask_focal_loss(mask_scores, pseudo_seg, weights) + dice_coefficient(mask_scores, pseudo_seg, weights)) * warmup_factor
 
                     # update the prototypes
                     mask_scores = (mask_scores > 0.5) * gt_bitmasks.float()
-                    
+                    # show_feature_map(mask_scores.detach(), 3)
+                    # pdb.set_trace()
                     gt_classes = [x.gt_classes for x in gt_instances]
                     self.prototype_learning(mask_feats_norm, proto_masks, mask_scores, gt_classes, pred_instances.labels, pred_instances.im_inds)
            
