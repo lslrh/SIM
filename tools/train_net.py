@@ -17,6 +17,7 @@ You may want to write your own script with your datasets and other customization
 
 import logging
 import os
+# os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3,4,5,6,7"
 os.environ["CUDA_VISIBLE_DEVICES"] = "8,9"
 from collections import OrderedDict
 import torch
@@ -43,7 +44,7 @@ from adet.data.fcpose_dataset_mapper import FCPoseDatasetMapper
 from adet.config import get_cfg
 from adet.checkpoint import AdetCheckpointer
 from adet.evaluation import TextEvaluator
-
+import pdb
 
 class Trainer(DefaultTrainer):
     """

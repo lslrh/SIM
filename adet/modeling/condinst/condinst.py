@@ -87,7 +87,7 @@ class CondInst(nn.Module):
         self.proposal_generator = build_proposal_generator(cfg, self.backbone.output_shape())
         self.mask_head = build_dynamic_mask_head(cfg)
         self.mask_branch = build_mask_branch(cfg, self.backbone.output_shape())
-
+        
         self.mask_out_stride = cfg.MODEL.CONDINST.MASK_OUT_STRIDE
 
         self.max_proposals = cfg.MODEL.CONDINST.MAX_PROPOSALS
@@ -99,6 +99,7 @@ class CondInst(nn.Module):
         self.pairwise_size = cfg.MODEL.BOXINST.PAIRWISE.SIZE
         self.pairwise_dilation = cfg.MODEL.BOXINST.PAIRWISE.DILATION
         self.pairwise_color_thresh = cfg.MODEL.BOXINST.PAIRWISE.COLOR_THRESH
+        self.ema_on = cfg.MODEL.BOXINST.EMA_ON
 
         # build top module
         in_channels = self.proposal_generator.in_channels_to_top_module
@@ -109,6 +110,15 @@ class CondInst(nn.Module):
         )
         torch.nn.init.normal_(self.controller.weight, std=0.01)
         torch.nn.init.constant_(self.controller.bias, 0)
+
+        if self.ema_on:
+            self.backbone_ema = build_backbone(cfg)
+            self.mask_branch_ema = build_mask_branch(cfg, self.backbone_ema.output_shape())
+
+            for param in self.backbone_ema.parameters():
+                param.requires_grad = False
+            for param in self.mask_branch_ema.parameters():
+                param.requires_grad = False
 
         pixel_mean = torch.Tensor(cfg.MODEL.PIXEL_MEAN).to(self.device).view(3, 1, 1)
         pixel_std = torch.Tensor(cfg.MODEL.PIXEL_STD).to(self.device).view(3, 1, 1)
@@ -157,10 +167,22 @@ class CondInst(nn.Module):
         proposals, proposal_losses = self.proposal_generator(
             images_norm, features, gt_instances, self.controller
         )
-
+        
         if self.training:
-            mask_losses = self._forward_mask_heads_train(proposals, mask_feats, gt_instances)
+            if self.ema_on:
+                ema_features = self.backbone(images_norm.tensor)
+                ema_mask_feats, _ = self.mask_branch_ema(ema_features, gt_instances)
+                mask_losses = self._forward_mask_heads_train(proposals, mask_feats, ema_mask_feats, gt_instances)
+                # update ema model
+                for param_q, param_k in zip(self.backbone.parameters(), self.backbone_ema.parameters()):
+                    param_k.data = param_k.data.clone() * 0.999 + param_q.data.clone() * (1. - 0.999)
+                for buffer_q, buffer_k in zip(self.backbone.buffers(), self.backbone_ema.buffers()):
+                    buffer_k.data = buffer_q.data.clone()
 
+                for param_q, param_k in zip(self.mask_branch.parameters(), self.mask_branch_ema.parameters()):
+                    param_k.data = param_k.data.clone() * 0.999 + param_q.data.clone() * (1. - 0.999)
+                for buffer_q, buffer_k in zip(self.mask_branch.buffers(), self.mask_branch_ema.buffers()):
+                    buffer_k.data = buffer_q.data.clone()
             losses = {}
             losses.update(sem_losses)
             losses.update(proposal_losses)
@@ -187,7 +209,7 @@ class CondInst(nn.Module):
 
             return processed_results
 
-    def _forward_mask_heads_train(self, proposals, mask_feats, gt_instances):
+    def _forward_mask_heads_train(self, proposals, mask_feats, ema_mask_feats, gt_instances):
         # prepare the inputs for mask heads
         pred_instances = proposals["instances"]
 
@@ -229,7 +251,7 @@ class CondInst(nn.Module):
         pred_instances.mask_head_params = pred_instances.top_feats
 
         loss_mask = self.mask_head(
-            mask_feats, self.mask_branch.out_stride,
+            mask_feats, ema_mask_feats, self.mask_branch.out_stride,
             pred_instances, gt_instances
         )
 

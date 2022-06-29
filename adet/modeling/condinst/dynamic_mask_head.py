@@ -9,6 +9,7 @@ from adet.utils.show import show_feature_map
 from adet.utils.sinkhorn import distributed_sinkhorn
 from timm.models.layers import trunc_normal_
 from einops import rearrange, repeat
+from torch_scatter import scatter_mean
 import pdb
 
 def compute_project_term(mask_scores, gt_bitmasks):
@@ -276,7 +277,7 @@ class DynamicMaskHead(nn.Module):
             dist.all_reduce(protos.div_(dist.get_world_size()))
             self.prototypes = nn.Parameter(protos, requires_grad=False)
 
-    def __call__(self, mask_feats, mask_feat_stride, pred_instances, gt_instances=None):
+    def __call__(self, mask_feats, ema_mask_feats, mask_feat_stride, pred_instances, gt_instances=None):
         if self.training:
             self._iter += 1
 
@@ -304,11 +305,11 @@ class DynamicMaskHead(nn.Module):
 
                 if self.boxinst_enabled:
                     # compute feats similarity 
-                    mask_feats_ = F.interpolate(
-                                                mask_feats,
+                    ema_mask_feats = F.interpolate(
+                                                ema_mask_feats,
                                                 scale_factor=2,
                                                 mode="bilinear", align_corners=False)
-                    mask_feat_similarity = get_feat_similarity(mask_feats_, self.pairwise_size, self.pairwise_dilation)
+                    mask_feat_similarity = get_feat_similarity(ema_mask_feats, self.pairwise_size, self.pairwise_dilation)
                     mask_feat_similarity_list = []
                     for i in range(len(gt_instances)):
                         mask_feat_similarity_list.append(torch.stack([mask_feat_similarity[i] for _ in range(len(gt_instances[i]))], dim=0))
@@ -336,30 +337,38 @@ class DynamicMaskHead(nn.Module):
                     # compute pseudo loss
                     proto_masks_list = []
                     self.prototypes.data.copy_(l2_normalize(self.prototypes))
-                    mask_feats_norm = l2_normalize(mask_feats_).permute(0,2,3,1)
-                    # _c = []
-                    # for i in range(len(gt_instances)):
-                    #     _c.append(torch.stack([mask_feats_norm[i] for _ in range(len(gt_instances[i]))], dim=0))
-                    # _c = torch.cat([x for x in _c])
+                    ema_mask_feats = l2_normalize(ema_mask_feats).permute(0,2,3,1)
 
                     for i, x in enumerate(gt_instances):
-                        masks = torch.einsum('hwd,npd->nphw', mask_feats_norm[i], self.prototypes[x.gt_classes])
+                        masks = torch.einsum('hwd,npd->nphw', ema_mask_feats[i], self.prototypes[x.gt_classes]).detach()
                         proto_masks_list.append(masks)
                     proto_masks = torch.cat([x for x in proto_masks_list])
                     proto_masks = proto_masks[gt_inds]
                     pseudo_seg = torch.amax(proto_masks, dim=1).unsqueeze(1).sigmoid()
-                    pseudo_seg_final = ( pseudo_seg > 0.5) * gt_bitmasks.float()
-                    # show_feature_map(pseudo_seg_.detach(), 2)
+
+                    mask_scores_mean = scatter_mean(mask_scores, gt_inds.unsqueeze(1), dim=0)[gt_inds]
+                    # compute the threshold for pseudo labels
+                    masks = (mask_scores > 0.5) * gt_bitmasks.float()
+                    n_pos = (torch.sum(masks, dim=(2,3))* 0.90).long() 
+                    pseudo_seg = 0.7 * pseudo_seg + 0.3 * mask_scores_mean
+                    pseudo_scores = (pseudo_seg * gt_bitmasks).reshape(len(gt_inds), -1) 
+                    pseudo_scores_rank = torch.sort(pseudo_scores, descending=True)[0]
+                    thr = torch.gather(pseudo_scores_rank, dim=1, index=n_pos)
+                    thr = scatter_mean(thr.squeeze(1), gt_inds)[gt_inds][:,None,None,None]
+                    pseudo_seg_final = ( pseudo_seg > thr) * gt_bitmasks.float()
+                    # neg = (pseudo_seg < (thr-0.2)) * gt_bitmasks
+                    # show_feature_map(pseudo_seg_final.detach(), 2)
                     # show_feature_map(mask_scores.detach(), 3)
-                    warmup_factor_2 = min(self._iter.item() / float(90000), 1.0)
-                    weights = ((pseudo_seg > 0.6) | (pseudo_seg < 0.4)) * gt_bitmasks
-                    loss_pseudo = (mask_focal_loss(mask_scores, pseudo_seg_final, weights) + dice_coefficient(mask_scores, pseudo_seg_final, weights)) * warmup_factor_2
+                    # show_feature_map(neg.detach(), 4)
+                    # pdb.set_trace()
+                
+                    warmup_factor_2 = min(self._iter.item() / float(50000), 0.5) if self._iter >20000 else 0 
+                    weights = ((pseudo_seg > thr) | (pseudo_seg < (thr-0.2))) * gt_bitmasks
+                    loss_pseudo = (mask_focal_loss(mask_scores, pseudo_seg_final.detach(), weights)) * warmup_factor_2
 
                     # update the prototypes
-                    mask_scores = (mask_scores > 0.5) * gt_bitmasks.float()
-                    
                     gt_classes = [x.gt_classes for x in gt_instances]
-                    self.prototype_learning(mask_feats_norm, proto_masks, mask_scores, gt_classes, pred_instances.labels, pred_instances.im_inds)
+                    self.prototype_learning(ema_mask_feats, proto_masks, masks, gt_classes, pred_instances.labels, pred_instances.im_inds)
            
                     losses.update({
                         "loss_prj": loss_prj_term,
