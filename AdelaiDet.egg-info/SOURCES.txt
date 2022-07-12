@@ -93,4 +93,6 @@ adet/utils/__init__.py
 adet/utils/comm.py
 adet/utils/contrast.py
 adet/utils/measures.py
+adet/utils/show.py
+adet/utils/sinkhorn.py
 adet/utils/visualizer.py
